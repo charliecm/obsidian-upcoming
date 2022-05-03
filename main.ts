@@ -23,7 +23,7 @@ export default class Upcoming extends Plugin {
 		this.addSettingTab(new UpcomingSettingTab(this.app, this));
 
 		this.addCommand({
-			id: 'calendar-kit-open',
+			id: 'upcoming-open-notes',
 			name: 'Open upcoming notes',
 			checkCallback: (checking: boolean) => {
 				if (checking) return true;
@@ -61,7 +61,7 @@ export default class Upcoming extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'calendar-kit-close-panes',
+			id: 'upcoming-close-panes',
 			name: 'Close panes',
 			checkCallback: (checking: boolean) => {
 				if (checking) return true;
