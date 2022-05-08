@@ -27,11 +27,12 @@ export default class Upcoming extends Plugin {
 			name: 'Open upcoming notes',
 			checkCallback: (checking: boolean) => {
 				if (checking) return true;
-				this.closePanes();
 				const dateFormat = this.settings.dateFormat;
 				const notesFolder = this.settings.notesFolder;
 				const days = Math.trunc(this.settings.days);
 				const activeLeafFile = (app.workspace.activeLeaf.view as any).file;
+				const activeLeafId = (app.workspace.activeLeaf as any).id;
+				this.closePanes(activeLeafId);
 
 				// Check if currently active file is a day note
 				// If not, open day notes starting from today
@@ -70,8 +71,9 @@ export default class Upcoming extends Plugin {
 		});
 	}
 
-	closePanes() {
+	closePanes(excludeId: string = '') {
 		this.settings.leafIds.forEach(id => {
+			if (id === excludeId) return;
 			const leaf = app.workspace.getLeafById(id);
 			if (leaf) leaf.detach();
 		});
