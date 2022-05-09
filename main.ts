@@ -36,8 +36,8 @@ export default class Upcoming extends Plugin {
 				const activeLeafId = (app.workspace.activeLeaf as any).id;
 				this.closePanes(activeLeafId);
 
-				// Check if currently active file is a day note
-				// If not, open day notes starting from today
+				// Check if the current active file is a daily note
+				// If not, open daily notes starting from today
 				let startDate = dayjs();
 				let startFromToday = true;
 				if (activeLeafFile.path.startsWith(notesFolder)) {
@@ -106,7 +106,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Date format')
-      .setDesc('Default date format')
+      .setDesc('To identify the daily notes to open.')
       .addText(text =>
         text
           .setPlaceholder('YYYY-MM-DD')
@@ -119,11 +119,11 @@ class UpcomingSettingTab extends PluginSettingTab {
 
 		// TODO: Search vault folders dropdown
 		new Setting(containerEl)
-      .setName('Note Folder')
+      .setName('Note folder')
       .setDesc('Daily notes will be opened from here.')
 			.addText(text =>
         text
-          .setPlaceholder('Example: Daily')
+          .setPlaceholder('Example: Folder/Subfolder')
           .setValue(this.plugin.settings.notesFolder)
           .onChange(async value => {
             this.plugin.settings.notesFolder = value;
@@ -132,7 +132,7 @@ class UpcomingSettingTab extends PluginSettingTab {
       );
 
 		new Setting(containerEl)
-			.setName('Days to Open')
+			.setName('Days to open')
 			.setDesc('How many days ahead to open when running the command.')
 			.addText(text =>
 				text

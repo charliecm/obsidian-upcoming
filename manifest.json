@@ -3,7 +3,7 @@
 	"name": "Upcoming",
 	"version": "0.1.0",
 	"minAppVersion": "0.14.6",
-	"description": "Show upcoming notes in their own panes.",
+	"description": "Open upcoming daily notes in their own panes.",
 	"author": "Charlie Chao",
 	"authorUrl": "https://github.com/charliecm"
 }
