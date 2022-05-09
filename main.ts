@@ -15,6 +15,8 @@ const DEFAULT_SETTINGS: Partial<Settings> = {
 	leafIds: []
 };
 
+const SPLIT_INDEX = 99; // Split panes at the end
+
 export default class Upcoming extends Plugin {
 	settings: Settings;
 
@@ -52,7 +54,7 @@ export default class Upcoming extends Plugin {
 					const file = app.vault.getAbstractFileByPath(path);
 					if (file) {
 						// Open day note in a new pane on the right
-						const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, 99);
+						const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
 						leaf.openFile(file as TFile);
 						this.settings.leafIds.push((leaf as any).id);
 					}
