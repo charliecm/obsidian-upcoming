@@ -53,7 +53,7 @@ export default class Upcoming extends Plugin {
 					const path = `${notesFolder}/${noteName}.md`;
 					const file = app.vault.getAbstractFileByPath(path);
 					if (file) {
-						// Open day note in a new pane on the right
+						// Open daily note in a new pane on the right
 						const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
 						leaf.openFile(file as TFile);
 						const leafId = (leaf as any).id ?? null;
