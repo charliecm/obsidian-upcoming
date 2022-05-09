@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { App, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { App, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 
 interface Settings {
   dateFormat: string;
@@ -27,8 +27,7 @@ export default class Upcoming extends Plugin {
 		this.addCommand({
 			id: 'upcoming-open-notes',
 			name: 'Open upcoming notes',
-			checkCallback: (checking: boolean) => {
-				if (checking) return true;
+			callback: () => {
 				const dateFormat = this.settings.dateFormat;
 				const notesFolder = this.settings.notesFolder;
 				const days = Math.trunc(this.settings.days);
