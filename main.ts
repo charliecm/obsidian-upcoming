@@ -109,7 +109,7 @@ class UpcomingSettingTab extends PluginSettingTab {
       .setDesc('To identify the daily notes to open.')
       .addText(text =>
         text
-          .setPlaceholder('YYYY-MM-DD')
+          .setPlaceholder(DEFAULT_SETTINGS.dateFormat)
           .setValue(this.plugin.settings.dateFormat)
           .onChange(async value => {
             this.plugin.settings.dateFormat = value;
@@ -136,7 +136,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 			.setDesc('How many days ahead to open when running the command.')
 			.addText(text =>
 				text
-          .setPlaceholder('7')
+          .setPlaceholder(DEFAULT_SETTINGS.days.toString())
 					.setValue((this.plugin.settings.days || DEFAULT_SETTINGS.days).toString())
 					.onChange(async value => {
 						this.plugin.settings.days = Math.abs(parseInt(value, 10));
