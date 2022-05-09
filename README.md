@@ -5,6 +5,8 @@ An [Obsidian](https://obsidian.md) plugin that opens upcoming [daily notes](http
 - **Open upcoming notes:** If a daily note is in the currently active pane, this command will open upcoming notes relative to that date. Otherwise, it will start from today. Only daily notes that exist will be opened.
 - **Close panes:** Closes all daily note panes opened previously by the plugin.
 
+![Demo](https://raw.githubusercontent.com/charliecm/obsidian-tidy-footnotes/main/demo.gif)
+
 ## How to Install
 
 From inside Obsidian…
