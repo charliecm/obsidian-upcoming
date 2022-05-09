@@ -31,8 +31,9 @@ export default class Upcoming extends Plugin {
 				const dateFormat = this.settings.dateFormat;
 				const notesFolder = this.settings.notesFolder;
 				const days = Math.trunc(this.settings.days);
-				const activeLeafFile = (app.workspace.activeLeaf.view as any).file;
-				const activeLeafId = (app.workspace.activeLeaf as any).id;
+				const activeLeafFile = app.workspace.getActiveFile();
+				const activeLeaf = app.workspace.getActiveViewOfType(MarkdownView).leaf;
+				const activeLeafId = (activeLeaf as any).id ?? '';
 				this.closePanes(activeLeafId);
 
 				// Check if the current active file is a daily note
