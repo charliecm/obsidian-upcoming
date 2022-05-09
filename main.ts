@@ -56,7 +56,8 @@ export default class Upcoming extends Plugin {
 						// Open day note in a new pane on the right
 						const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
 						leaf.openFile(file as TFile);
-						this.settings.leafIds.push((leaf as any).id);
+						const leafId = (leaf as any).id ?? null;
+						if (leafId) this.settings.leafIds.push(leafId);
 					}
 				}
 				this.saveSettings();
