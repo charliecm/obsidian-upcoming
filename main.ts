@@ -9,7 +9,7 @@ interface Settings {
 }
 
 const DEFAULT_SETTINGS: Partial<Settings> = {
-	days: 7,
+	days: 6,
 	createNotes: false,
 	leafIds: []
 };
@@ -28,7 +28,7 @@ export default class Upcoming extends Plugin {
 			name: 'Open upcoming notes',
 			callback: () => {
 				let dailyNotes = getAllDailyNotes();
-				const days = Math.trunc(this.settings.days);
+				const days = Math.trunc(this.settings.days) + 1;
 				const createNotes = this.settings.createNotes;
 				const activeFile = app.workspace.getActiveFile();
 				const activeView = app.workspace.getActiveViewOfType(MarkdownView);
@@ -41,15 +41,15 @@ export default class Upcoming extends Plugin {
 				// Check if the current active file is a daily note
 				// If not, open daily notes starting from today
 				let startDate = moment();
-				let startFromToday = true;
+				let dayOffset = 0;
 				const noteDate = getDateFromFile(activeFile, 'day');
 				if (noteDate) {
 					startDate = noteDate;
-					startFromToday = false;
+					dayOffset = 1;
 				}
 
 				const openPanes = () => {
-					for (let i = startFromToday ? 0 : 1; i < days; i++) {
+					for (let i = dayOffset; i < days; i++) {
 						const date = startDate.clone().add(i, 'day');
 						const file = getDailyNote(date, dailyNotes);
 						if (file) {
@@ -65,7 +65,7 @@ export default class Upcoming extends Plugin {
 				if (createNotes) {
 					let queue = [];
 					// Check if there are notes that need to be created
-					for (let i = startFromToday ? 0 : 1; i < days; i++) {
+					for (let i = dayOffset; i < days; i++) {
 						const date = startDate.clone().add(i, 'day');
 						const file = getDailyNote(date, dailyNotes);
 						if (!file) {
