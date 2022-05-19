@@ -1,17 +1,16 @@
-import dayjs from 'dayjs';
+import moment from 'moment';
 import { App, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { createDailyNote, getAllDailyNotes, getDailyNote, getDateFromFile } from 'obsidian-daily-notes-interface';
 
 interface Settings {
-  dateFormat: string;
-	notesFolder: string;
 	days: number;
+	createNotes: boolean;
 	leafIds: string[];
 }
 
 const DEFAULT_SETTINGS: Partial<Settings> = {
-  dateFormat: 'YYYY-MM-DD',
-	notesFolder: '',
 	days: 7,
+	createNotes: false,
 	leafIds: []
 };
 
@@ -28,38 +27,64 @@ export default class Upcoming extends Plugin {
 			id: 'upcoming-open-notes',
 			name: 'Open upcoming notes',
 			callback: () => {
-				const dateFormat = this.settings.dateFormat;
-				const notesFolder = this.settings.notesFolder;
+				let dailyNotes = getAllDailyNotes();
 				const days = Math.trunc(this.settings.days);
-				const activeLeafFile = app.workspace.getActiveFile();
-				const activeLeaf = app.workspace.getActiveViewOfType(MarkdownView).leaf;
-				const activeLeafId = (activeLeaf as any).id ?? '';
+				const createNotes = this.settings.createNotes;
+				const activeFile = app.workspace.getActiveFile();
+				const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+				let activeLeafId = '';
+				if (activeView) {
+					activeLeafId = (activeView.leaf as any).id;
+				}
 				this.closePanes(activeLeafId);
 
 				// Check if the current active file is a daily note
 				// If not, open daily notes starting from today
-				let startDate = dayjs();
+				let startDate = moment();
 				let startFromToday = true;
-				if (activeLeafFile.path.startsWith(notesFolder)) {
-					const noteDate = dayjs(activeLeafFile.basename, dateFormat);
-					if (noteDate.isValid()) {
-						startDate = noteDate;
-						startFromToday = false;
+				const noteDate = getDateFromFile(activeFile, 'day');
+				if (noteDate) {
+					startDate = noteDate;
+					startFromToday = false;
+				}
+
+				const openPanes = () => {
+					for (let i = startFromToday ? 0 : 1; i < days; i++) {
+						const date = startDate.clone().add(i, 'day');
+						const file = getDailyNote(date, dailyNotes);
+						if (file) {
+							// Open daily note in a new pane on the right
+							const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
+							leaf.openFile(file as TFile);
+							const leafId = (leaf as any).id ?? null;
+							if (leafId) this.settings.leafIds.push(leafId);
+						}
 					}
 				}
 
-				for (let i = startFromToday ? 0 : 1; i < days; i++) {
-					const noteName = startDate.add(i, 'day').format(dateFormat);
-					const path = `${notesFolder}/${noteName}.md`;
-					const file = app.vault.getAbstractFileByPath(path);
-					if (file) {
-						// Open daily note in a new pane on the right
-						const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
-						leaf.openFile(file as TFile);
-						const leafId = (leaf as any).id ?? null;
-						if (leafId) this.settings.leafIds.push(leafId);
+				if (createNotes) {
+					let queue = [];
+					// Check if there are notes that need to be created
+					for (let i = startFromToday ? 0 : 1; i < days; i++) {
+						const date = startDate.clone().add(i, 'day');
+						const file = getDailyNote(date, dailyNotes);
+						if (!file) {
+							queue.push(createDailyNote(date));
+						}
 					}
+					if (queue.length) {
+						// Create the files async
+						Promise.all(queue).then(() => {
+							dailyNotes = getAllDailyNotes();
+							openPanes();
+						});
+					} else {
+						openPanes();
+					}
+				} else {
+					openPanes();
 				}
+				
 				this.saveSettings();
 			}
 		});
@@ -105,33 +130,6 @@ class UpcomingSettingTab extends PluginSettingTab {
 
     containerEl.empty();
 
-    new Setting(containerEl)
-      .setName('Date format')
-      .setDesc('To identify the daily notes to open.')
-      .addText(text =>
-        text
-          .setPlaceholder(DEFAULT_SETTINGS.dateFormat)
-          .setValue(this.plugin.settings.dateFormat)
-          .onChange(async value => {
-            this.plugin.settings.dateFormat = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-		// TODO: Search vault folders dropdown
-		new Setting(containerEl)
-      .setName('Note folder')
-      .setDesc('Daily notes will be opened from here.')
-			.addText(text =>
-        text
-          .setPlaceholder('Example: Folder/Subfolder')
-          .setValue(this.plugin.settings.notesFolder)
-          .onChange(async value => {
-            this.plugin.settings.notesFolder = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
 		new Setting(containerEl)
 			.setName('Days to open')
 			.setDesc('How many days ahead to open when running the command.')
@@ -141,6 +139,18 @@ class UpcomingSettingTab extends PluginSettingTab {
 					.setValue((this.plugin.settings.days || DEFAULT_SETTINGS.days).toString())
 					.onChange(async value => {
 						this.plugin.settings.days = Math.abs(parseInt(value, 10));
+            await this.plugin.saveSettings();
+					})
+			);
+		
+			new Setting(containerEl)
+			.setName('Create notes on run')
+			.setDesc('If enabled, daily notes will be created for the upcoming days if they don\'t exist.')
+			.addToggle(toggle =>
+				toggle
+					.setValue(this.plugin.settings.createNotes || DEFAULT_SETTINGS.createNotes)
+					.onChange(async value => {
+						this.plugin.settings.createNotes = value;
             await this.plugin.saveSettings();
 					})
 			);
