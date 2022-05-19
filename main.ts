@@ -117,28 +117,28 @@ export default class Upcoming extends Plugin {
 }
 
 class UpcomingSettingTab extends PluginSettingTab {
-  plugin: Upcoming;
+	plugin: Upcoming;
 
-  constructor(app: App, plugin: Upcoming) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
+	constructor(app: App, plugin: Upcoming) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-  display(): void {
-    let { containerEl } = this;
+	display(): void {
+		let { containerEl } = this;
 
-    containerEl.empty();
+		containerEl.empty();
 
 		new Setting(containerEl)
 			.setName('Days to open')
 			.setDesc('How many days ahead to open when running the command.')
 			.addText(text =>
 				text
-          .setPlaceholder(DEFAULT_SETTINGS.days.toString())
+					.setPlaceholder(DEFAULT_SETTINGS.days.toString())
 					.setValue(this.plugin.settings.days.toString())
 					.onChange(async value => {
 						this.plugin.settings.days = Math.abs(parseInt(value, 10));
-            await this.plugin.saveSettings();
+						await this.plugin.saveSettings();
 					})
 			);
 		
@@ -150,7 +150,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.createNotes)
 					.onChange(async value => {
 						this.plugin.settings.createNotes = value;
-            await this.plugin.saveSettings();
+						await this.plugin.saveSettings();
 					})
 			);
 		
@@ -180,5 +180,5 @@ class UpcomingSettingTab extends PluginSettingTab {
 		footer.appendChild(pSupport);
 		footer.appendChild(pCoffee);
 		containerEl.appendChild(footer);
-  }
+	}
 }
