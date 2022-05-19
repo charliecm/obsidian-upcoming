@@ -92,8 +92,7 @@ export default class Upcoming extends Plugin {
 		this.addCommand({
 			id: 'upcoming-close-panes',
 			name: 'Close panes',
-			checkCallback: (checking: boolean) => {
-				if (checking) return true;
+			callback: () => {
 				this.closePanes();
 			}
 		});
