@@ -135,7 +135,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 			.addText(text =>
 				text
           .setPlaceholder(DEFAULT_SETTINGS.days.toString())
-					.setValue((this.plugin.settings.days || DEFAULT_SETTINGS.days).toString())
+					.setValue(this.plugin.settings.days.toString())
 					.onChange(async value => {
 						this.plugin.settings.days = Math.abs(parseInt(value, 10));
             await this.plugin.saveSettings();
@@ -147,7 +147,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 			.setDesc('If enabled, daily notes will be created for the upcoming days if they don\'t exist.')
 			.addToggle(toggle =>
 				toggle
-					.setValue(this.plugin.settings.createNotes || DEFAULT_SETTINGS.createNotes)
+					.setValue(this.plugin.settings.createNotes)
 					.onChange(async value => {
 						this.plugin.settings.createNotes = value;
             await this.plugin.saveSettings();
