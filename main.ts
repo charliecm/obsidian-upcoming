@@ -143,7 +143,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 			);
 		
 			new Setting(containerEl)
-			.setName('Create notes on run')
+			.setName('Create notes when opening')
 			.setDesc('If enabled, daily notes will be created for the upcoming days if they don\'t exist.')
 			.addToggle(toggle =>
 				toggle
