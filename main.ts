@@ -57,6 +57,7 @@ export default class Upcoming extends Plugin {
 		const createNotes = this.settings.createNotes;
 		const activeFile = app.workspace.getActiveFile();
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+		const container = activeView.leaf.getContainer()
 		let activeLeafId = '';
 		if (activeView) {
 			activeLeafId = (activeView.leaf as any).id;
@@ -78,9 +79,9 @@ export default class Upcoming extends Plugin {
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (file) {
-					// Open daily note in a new pane on the right
+					// Open daily note in a new window or in a new pane on the right
 					const leaf = asWindows ? app.workspace.openPopoutLeaf() :
-						app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
+						app.workspace.createLeafInParent(container, SPLIT_INDEX);
 					leaf.openFile(file as TFile);
 					const leafId = (leaf as any).id ?? null;
 					if (leafId) this.settings.leafIds.push(leafId);
