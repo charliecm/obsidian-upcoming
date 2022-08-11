@@ -1,6 +1,6 @@
 {
   "name": "obsidian-upcoming",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "@rollup/plugin-typescript": "8.3.2",
     "@types/node": "17.0.30",
     "momentjs": "^2.0.0",
-    "obsidian": "0.14.6",
+    "obsidian": "^0.15.9",
     "obsidian-daily-notes-interface": "^0.9.4",
     "rollup": "2.70.2",
     "tslib": "2.4.0",

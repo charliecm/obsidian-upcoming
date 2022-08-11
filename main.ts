@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { App, MarkdownView, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { App, MarkdownView, Platform, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 import { createDailyNote, getAllDailyNotes, getDailyNote, getDateFromFile } from 'obsidian-daily-notes-interface';
 
 interface Settings {
@@ -27,65 +27,18 @@ export default class Upcoming extends Plugin {
 			id: 'upcoming-open-notes',
 			name: 'Open upcoming notes',
 			callback: () => {
-				let dailyNotes = getAllDailyNotes();
-				const days = Math.trunc(this.settings.days) + 1;
-				const createNotes = this.settings.createNotes;
-				const activeFile = app.workspace.getActiveFile();
-				const activeView = app.workspace.getActiveViewOfType(MarkdownView);
-				let activeLeafId = '';
-				if (activeView) {
-					activeLeafId = (activeView.leaf as any).id;
-				}
-				this.closePanes(activeLeafId);
+				this.openNotes();
+			}
+		});
 
-				// Check if the current active file is a daily note
-				// If not, open daily notes starting from today
-				let startDate = moment();
-				let dayOffset = 0;
-				const noteDate = getDateFromFile(activeFile, 'day');
-				if (noteDate) {
-					startDate = noteDate;
-					dayOffset = 1;
+		this.addCommand({
+			id: 'upcoming-open-notes-in-new-windows',
+			name: 'Open upcoming notes in new windows',
+			checkCallback: (checking: boolean) => {
+				if (checking) {
+					return !Platform.isMobileApp;
 				}
-
-				const openPanes = () => {
-					for (let i = dayOffset; i < days; i++) {
-						const date = startDate.clone().add(i, 'day');
-						const file = getDailyNote(date, dailyNotes);
-						if (file) {
-							// Open daily note in a new pane on the right
-							const leaf = app.workspace.createLeafInParent(app.workspace.rootSplit, SPLIT_INDEX);
-							leaf.openFile(file as TFile);
-							const leafId = (leaf as any).id ?? null;
-							if (leafId) this.settings.leafIds.push(leafId);
-						}
-					}
-				}
-
-				if (createNotes) {
-					let queue = [];
-					// Check if there are notes that need to be created
-					for (let i = dayOffset; i < days; i++) {
-						const date = startDate.clone().add(i, 'day');
-						const file = getDailyNote(date, dailyNotes);
-						if (!file) {
-							queue.push(createDailyNote(date));
-						}
-					}
-					if (queue.length) {
-						// Create the files async
-						Promise.all(queue).then(() => {
-							dailyNotes = getAllDailyNotes();
-							openPanes();
-						});
-					} else {
-						openPanes();
-					}
-				} else {
-					openPanes();
-				}
-				
-				this.saveSettings();
+				this.openNotes(true);
 			}
 		});
 
@@ -96,6 +49,70 @@ export default class Upcoming extends Plugin {
 				this.closePanes();
 			}
 		});
+	}
+
+	openNotes(asWindows: boolean = false) {
+		let dailyNotes = getAllDailyNotes();
+		const days = Math.trunc(this.settings.days) + 1;
+		const createNotes = this.settings.createNotes;
+		const activeFile = app.workspace.getActiveFile();
+		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+		const container = activeView.leaf.getContainer()
+		let activeLeafId = '';
+		if (activeView) {
+			activeLeafId = (activeView.leaf as any).id;
+		}
+		this.closePanes(activeLeafId);
+
+		// Check if the current active file is a daily note
+		// If not, open daily notes starting from today
+		let startDate = moment();
+		let dayOffset = 0;
+		const noteDate = getDateFromFile(activeFile, 'day');
+		if (noteDate) {
+			startDate = noteDate;
+			dayOffset = 1;
+		}
+
+		const openPanes = () => {
+			for (let i = dayOffset; i < days; i++) {
+				const date = startDate.clone().add(i, 'day');
+				const file = getDailyNote(date, dailyNotes);
+				if (file) {
+					// Open daily note in a new window or in a new pane on the right
+					const leaf = asWindows ? app.workspace.openPopoutLeaf() :
+						app.workspace.createLeafInParent(container, SPLIT_INDEX);
+					leaf.openFile(file as TFile);
+					const leafId = (leaf as any).id ?? null;
+					if (leafId) this.settings.leafIds.push(leafId);
+				}
+			}
+		}
+
+		if (createNotes) {
+			let queue = [];
+			// Check if there are notes that need to be created
+			for (let i = dayOffset; i < days; i++) {
+				const date = startDate.clone().add(i, 'day');
+				const file = getDailyNote(date, dailyNotes);
+				if (!file) {
+					queue.push(createDailyNote(date));
+				}
+			}
+			if (queue.length) {
+				// Create the files async
+				Promise.all(queue).then(() => {
+					dailyNotes = getAllDailyNotes();
+					openPanes();
+				});
+			} else {
+				openPanes();
+			}
+		} else {
+			openPanes();
+		}
+		
+		this.saveSettings();
 	}
 
 	closePanes(excludeId: string = '') {
