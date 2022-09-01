@@ -44,10 +44,10 @@ export default class Upcoming extends Plugin {
 		const paneType = this.settings.paneType;
 		if (Platform.isMobileApp) {
 			if (paneType === 'window') {
-				new Notice('Opening notes as windows is unsupported on mobile.');
+				new Notice('Opening notes in windows is unsupported on mobile.');
 				return;
 			} else if (paneType === 'tab') {
-				new Notice('Opening notes as tabs is unsupported on mobile.');
+				new Notice('Opening notes in tabs is unsupported on mobile.');
 				return;
 			}
 		}
@@ -145,8 +145,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Open notes in')
-			.setDesc('Windows and tabs are unsupported on mobile.')
+			.setName('Open notes in…')
 			.addDropdown(dropdown =>
 				dropdown
 					.addOption('split', 'Split panes')
