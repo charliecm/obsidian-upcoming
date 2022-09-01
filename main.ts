@@ -33,9 +33,9 @@ export default class Upcoming extends Plugin {
 
 		this.addCommand({
 			id: 'upcoming-close-panes',
-			name: 'Close panes',
+			name: 'Close notes',
 			callback: () => {
-				this.closePanes();
+				this.closeNotes();
 			}
 		});
 	}
@@ -61,7 +61,7 @@ export default class Upcoming extends Plugin {
 		if (activeView) {
 			activeLeafId = (activeView.leaf as any).id;
 		}
-		this.closePanes(activeLeafId);
+		this.closeNotes(activeLeafId);
 
 		// Check if the current active file is a daily note
 		// If not, open daily notes starting from today
@@ -113,7 +113,7 @@ export default class Upcoming extends Plugin {
 		this.saveSettings();
 	}
 
-	closePanes(excludeId: string = '') {
+	closeNotes(excludeId: string = '') {
 		this.settings.leafIds.forEach(id => {
 			if (id === excludeId) return;
 			const leaf = app.workspace.getLeafById(id);
