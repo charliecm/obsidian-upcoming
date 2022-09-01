@@ -32,17 +32,6 @@ export default class Upcoming extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'upcoming-open-notes-in-new-windows',
-			name: 'Open upcoming notes in new windows',
-			checkCallback: (checking: boolean) => {
-				if (checking) {
-					return !Platform.isMobileApp;
-				}
-				this.openNotes(true);
-			}
-		});
-
-		this.addCommand({
 			id: 'upcoming-close-panes',
 			name: 'Close panes',
 			callback: () => {
