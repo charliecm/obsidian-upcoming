@@ -74,7 +74,7 @@ export default class Upcoming extends Plugin {
 		}
 
 		const openPanes = () => {
-			for (let i = days - dayOffset; i > 0; i--) {
+			for (let i = days - 1; i >= dayOffset; i--) {
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (file) {
@@ -90,7 +90,7 @@ export default class Upcoming extends Plugin {
 		if (createNotes) {
 			let queue = [];
 			// Check if there are notes that need to be created
-			for (let i = days - dayOffset; i > 0; i--) {
+			for (let i = days - 1; i >= dayOffset; i--) {
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (!file) {
