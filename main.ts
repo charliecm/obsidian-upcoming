@@ -1,20 +1,20 @@
 import moment from 'moment';
-import { App, MarkdownView, Platform, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { App, MarkdownView, Notice, PaneType, Platform, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 import { createDailyNote, getAllDailyNotes, getDailyNote, getDateFromFile } from 'obsidian-daily-notes-interface';
 
 interface Settings {
+	paneType: PaneType;
 	days: number;
 	createNotes: boolean;
 	leafIds: string[];
 }
 
 const DEFAULT_SETTINGS: Partial<Settings> = {
+	paneType: 'split',
 	days: 6,
 	createNotes: false,
 	leafIds: []
 };
-
-const SPLIT_INDEX = 99; // Split panes at the end
 
 export default class Upcoming extends Plugin {
 	settings: Settings;
@@ -32,37 +32,36 @@ export default class Upcoming extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'upcoming-open-notes-in-new-windows',
-			name: 'Open upcoming notes in new windows',
-			checkCallback: (checking: boolean) => {
-				if (checking) {
-					return !Platform.isMobileApp;
-				}
-				this.openNotes(true);
-			}
-		});
-
-		this.addCommand({
 			id: 'upcoming-close-panes',
-			name: 'Close panes',
+			name: 'Close notes',
 			callback: () => {
-				this.closePanes();
+				this.closeNotes();
 			}
 		});
 	}
 
-	openNotes(asWindows: boolean = false) {
+	openNotes() {
+		const paneType = this.settings.paneType;
+		if (Platform.isMobileApp) {
+			if (paneType === 'window') {
+				new Notice('Opening notes in windows is unsupported on mobile.');
+				return;
+			} else if (paneType === 'tab') {
+				new Notice('Opening notes in tabs is unsupported on mobile.');
+				return;
+			}
+		}
+
 		let dailyNotes = getAllDailyNotes();
 		const days = Math.trunc(this.settings.days) + 1;
 		const createNotes = this.settings.createNotes;
 		const activeFile = app.workspace.getActiveFile();
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
-		const container = activeView.leaf.getContainer()
 		let activeLeafId = '';
 		if (activeView) {
 			activeLeafId = (activeView.leaf as any).id;
 		}
-		this.closePanes(activeLeafId);
+		this.closeNotes(activeLeafId);
 
 		// Check if the current active file is a daily note
 		// If not, open daily notes starting from today
@@ -75,13 +74,12 @@ export default class Upcoming extends Plugin {
 		}
 
 		const openPanes = () => {
-			for (let i = dayOffset; i < days; i++) {
+			for (let i = days - 1; i >= dayOffset; i--) {
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (file) {
-					// Open daily note in a new window or in a new pane on the right
-					const leaf = asWindows ? app.workspace.openPopoutLeaf() :
-						app.workspace.createLeafInParent(container, SPLIT_INDEX);
+					const leaf = paneType == 'split' ? app.workspace.getLeaf(paneType, 'vertical') :
+						app.workspace.getLeaf(paneType);
 					leaf.openFile(file as TFile);
 					const leafId = (leaf as any).id ?? null;
 					if (leafId) this.settings.leafIds.push(leafId);
@@ -92,7 +90,7 @@ export default class Upcoming extends Plugin {
 		if (createNotes) {
 			let queue = [];
 			// Check if there are notes that need to be created
-			for (let i = dayOffset; i < days; i++) {
+			for (let i = days - 1; i >= dayOffset; i--) {
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (!file) {
@@ -115,7 +113,7 @@ export default class Upcoming extends Plugin {
 		this.saveSettings();
 	}
 
-	closePanes(excludeId: string = '') {
+	closeNotes(excludeId: string = '') {
 		this.settings.leafIds.forEach(id => {
 			if (id === excludeId) return;
 			const leaf = app.workspace.getLeafById(id);
@@ -147,6 +145,20 @@ class UpcomingSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
+			.setName('Open notes in…')
+			.addDropdown(dropdown =>
+				dropdown
+					.addOption('split', 'Split panes')
+					.addOption('window', 'Windows')
+					.addOption('tab', 'Tabs')
+					.setValue(this.plugin.settings.paneType)
+					.onChange(async value => {
+						this.plugin.settings.paneType = value as PaneType;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
 			.setName('Days to open')
 			.setDesc('How many days ahead to open when running the command.')
 			.addText(text =>
@@ -159,7 +171,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 					})
 			);
 		
-			new Setting(containerEl)
+		new Setting(containerEl)
 			.setName('Create notes when opening')
 			.setDesc('If enabled, daily notes will be created for the upcoming days if they don\'t exist.')
 			.addToggle(toggle =>
