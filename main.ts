@@ -56,6 +56,8 @@ export default class Upcoming extends Plugin {
 
 		let dailyNotes = getAllDailyNotes();
 		const days = Math.trunc(this.settings.days) + 1;
+		const daysBehind = Math.trunc(this.settings.daysBehind)
+		const daysBehindOffset = (daysBehind > 0) ? daysBehind + 1 : 0;
 		const createNotes = this.settings.createNotes;
 		const activeFile = app.workspace.getActiveFile();
 		const activeView = app.workspace.getActiveViewOfType(MarkdownView);
@@ -76,15 +78,22 @@ export default class Upcoming extends Plugin {
 		}
 
 		const openPanes = () => {
-			for (let i = days - 1; i >= dayOffset; i--) {
-				const date = startDate.clone().add(i, 'day');
+			let leaf = activeView.leaf;
+			for (let i = days - 1; i >= dayOffset - daysBehindOffset; i--) {
+				if (i === 0) continue; // Skip the currently active date
+				const date = startDate.clone().add(i , 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (file) {
-					const leaf = paneType == 'split' ? app.workspace.getLeaf(paneType, 'vertical') :
+					leaf = paneType === 'split' ?
+						// If we're splitting panes and date is behind 2 days, create a
+						// pane to the left of the previously created pane instead of the 
+						// initial active pane as we're iterating backwards.
+						app.workspace.createLeafBySplit(i < -1 ? leaf : activeView.leaf, 'vertical', i < 0) :
+						// Create a new window or tab
 						app.workspace.getLeaf(paneType);
 					leaf.openFile(file as TFile);
 					const leafId = (leaf as any).id ?? null;
-					if (leafId) this.settings.leafIds.push(leafId);
+					if (leafId && i !== 0) this.settings.leafIds.push(leafId);
 				}
 			}
 		}
@@ -92,7 +101,8 @@ export default class Upcoming extends Plugin {
 		if (createNotes) {
 			let queue = [];
 			// Check if there are notes that need to be created
-			for (let i = days - 1; i >= dayOffset; i--) {
+			for (let i = days - 1; i >= dayOffset - daysBehindOffset; i--) {
+				if (i === 0) continue; // Skip the currently active date
 				const date = startDate.clone().add(i, 'day');
 				const file = getDailyNote(date, dailyNotes);
 				if (!file) {
