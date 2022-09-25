@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2022-09-25)
+
+- Added “Days behind to open” setting
+
 ## 0.3.0 (2022-08-31)
 
 - Added “Pane type” setting
