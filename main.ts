@@ -5,6 +5,7 @@ import { createDailyNote, getAllDailyNotes, getDailyNote, getDateFromFile } from
 interface Settings {
 	paneType: PaneType;
 	days: number;
+	daysBehind: number;
 	createNotes: boolean;
 	leafIds: string[];
 }
@@ -12,6 +13,7 @@ interface Settings {
 const DEFAULT_SETTINGS: Partial<Settings> = {
 	paneType: 'split',
 	days: 6,
+	daysBehind: 0,
 	createNotes: false,
 	leafIds: []
 };
@@ -159,14 +161,27 @@ class UpcomingSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName('Days to open')
-			.setDesc('How many days ahead to open when running the command.')
+			.setName('Days ahead to open')
+			.setDesc('How many daily notes in the future to open when running the command.')
 			.addText(text =>
 				text
 					.setPlaceholder(DEFAULT_SETTINGS.days.toString())
 					.setValue(this.plugin.settings.days.toString())
 					.onChange(async value => {
 						this.plugin.settings.days = Math.abs(parseInt(value, 10));
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName('Days behind to open')
+			.setDesc('How many daily notes in the past to open when running the command.')
+			.addText(text =>
+				text
+					.setPlaceholder(DEFAULT_SETTINGS.daysBehind.toString())
+					.setValue(this.plugin.settings.daysBehind.toString())
+					.onChange(async value => {
+						this.plugin.settings.daysBehind = Math.abs(parseInt(value, 10));
 						await this.plugin.saveSettings();
 					})
 			);
