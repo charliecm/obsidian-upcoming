@@ -161,8 +161,8 @@ class UpcomingSettingTab extends PluginSettingTab {
 			.addDropdown(dropdown =>
 				dropdown
 					.addOption('split', 'Split panes')
-					.addOption('window', 'Windows')
 					.addOption('tab', 'Tabs')
+					.addOption('window', 'Windows')
 					.setValue(this.plugin.settings.paneType)
 					.onChange(async value => {
 						this.plugin.settings.paneType = value as PaneType;
@@ -198,7 +198,7 @@ class UpcomingSettingTab extends PluginSettingTab {
 		
 		new Setting(containerEl)
 			.setName('Create notes when opening')
-			.setDesc('If enabled, daily notes will be created for the upcoming days if they don\'t exist.')
+			.setDesc('If enabled, daily notes will be created as they\'re opened if they don\'t exist.')
 			.addToggle(toggle =>
 				toggle
 					.setValue(this.plugin.settings.createNotes)
