@@ -1,9 +1,9 @@
 {
 	"id": "obsidian-upcoming",
 	"name": "Upcoming",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"minAppVersion": "0.14.6",
-	"description": "Open upcoming daily notes in their own panes or windows.",
+	"description": "Open upcoming and/or past daily notes in their own panes, tabs, or windows.",
 	"author": "Charlie Chao",
 	"authorUrl": "https://github.com/charliecm"
 }
