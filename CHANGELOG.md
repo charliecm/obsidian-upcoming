@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 (2022-09-25)
+## 0.4.0 (2022-10-21)
 
 - Added “Days behind to open” setting
 
