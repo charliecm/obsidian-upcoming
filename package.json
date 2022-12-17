@@ -10,16 +10,17 @@
   "keywords": [],
   "author": "Charlie Chao",
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-node-resolve": "^14.1.0",
-    "@rollup/plugin-typescript": "^8.5.0",
-    "@types/node": "^18.7.21",
+    "@rollup/plugin-commonjs": "23.0.5",
+    "@rollup/plugin-node-resolve": "15.0.1",
+    "@rollup/plugin-typescript": "10.0.1",
+    "@types/node": "18.11.16",
     "momentjs": "^2.0.0",
     "obsidian": "^0.16.3",
     "obsidian-daily-notes-interface": "^0.9.4",
-    "rollup": "^2.79.1",
-    "tslib": "2.4.0",
-    "typescript": "^4.8.3"
+    "rollup": "3.7.4",
+    "tslib": "2.4.1",
+    "typescript": "4.9.4"
   }
 }
