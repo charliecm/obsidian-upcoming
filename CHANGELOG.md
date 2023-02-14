@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 (2022-12-22)
+
+- Added “Create notes” command to create non-existing upcoming notes without opening them
+
 ## 0.4.0 (2022-10-21)
 
 - Added “Days behind to open” setting

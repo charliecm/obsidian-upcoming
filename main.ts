@@ -40,6 +40,14 @@ export default class Upcoming extends Plugin {
 				this.closeNotes();
 			}
 		});
+
+		this.addCommand({
+			id: 'upcoming-create-notes',
+			name: 'Create upcoming notes',
+			callback: () => {
+				this.createNotes();
+			}
+		});
 	}
 
 	openNotes() {
@@ -123,6 +131,53 @@ export default class Upcoming extends Plugin {
 		}
 		
 		this.saveSettings();
+	}
+
+	createNotes() {
+		let dailyNotes = getAllDailyNotes();
+		const days = Math.trunc(this.settings.days) + 1;
+		const activeFile = app.workspace.getActiveFile();
+
+		// Check if the current active file is a daily note
+		// If not, create daily notes starting from today
+		let startDate = moment();
+		let dayOffset = 0;
+		const noteDate = getDateFromFile(activeFile, 'day');
+		if (noteDate) {
+			startDate = noteDate;
+			dayOffset = 1;
+		}
+
+		let count = 0
+		let queue = [];
+		// Check if there are notes that need to be created
+		for (let i = days - 1; i >= dayOffset; i--) {
+			if (i === 0) continue; // Skip the currently active date
+			const date = startDate.clone().add(i, 'day');
+			const file = getDailyNote(date, dailyNotes);
+			if (!file) {
+				queue.push(createDailyNote(date).then(() => {
+					count++;
+				}));
+			}
+		}
+
+		const noticeAlreadyExists = 'Upcoming daily notes already exist.';
+		if (queue.length) {
+			// Create the files async
+			const startDatePretty = startDate.format('ll');
+			Promise.all(queue).then(() => {
+				if (count === 0) {
+					new Notice(noticeAlreadyExists);
+				} else if (count === 1) {
+					new Notice(`Created 1 daily note after ${startDatePretty}.`);
+				} else {
+					new Notice(`Created ${count} daily notes after ${startDatePretty}.`);
+				}
+			});
+		} else {
+			new Notice(noticeAlreadyExists);
+		}
 	}
 
 	closeNotes(excludeId: string = '') {
