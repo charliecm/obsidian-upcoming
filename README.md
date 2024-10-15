@@ -3,6 +3,7 @@
 An [Obsidian](https://obsidian.md) plugin that opens upcoming (and/or past) [daily notes](https://help.obsidian.md/Plugins/Daily+notes) in their own panes/tabs/windows, so you can see and plan ahead. Check out the plugin settings before using the provided commands:
 
 - **Open upcoming notes:** If a daily note is in the currently active pane, this command will open upcoming notes relative to that date. Otherwise, it will start from today.
+- **Create upcoming notes:** Creates non-existing upcoming notes without opening them.
 - **Close notes:** Closes all daily note opened previously by the plugin.
 
 ![Demo](https://raw.githubusercontent.com/charliecm/obsidian-upcoming/main/demo.gif)
