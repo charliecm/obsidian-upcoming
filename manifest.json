@@ -5,5 +5,6 @@
 	"minAppVersion": "0.14.6",
 	"description": "Open upcoming and/or past daily notes in their own panes, tabs, or windows.",
 	"author": "Charlie Chao",
-	"authorUrl": "https://github.com/charliecm"
+	"authorUrl": "https://github.com/charliecm",
+	"fundingUrl": "https://www.buymeacoffee.com/charliecm"
 }
